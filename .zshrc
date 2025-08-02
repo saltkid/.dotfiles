@@ -203,14 +203,23 @@ bindkey -s '^T' 'tbg run -r -p list-3\n'
 # }}}
 
 # WSL SPECIFIC STUFF {{{
+
 if [[ $(rg -i microsoft /proc/version) ]]; then
+  if [[ $WSL_DISTRO_NAME == 'archlinux' ]]; then
+    TBG_PORT=9545
+  elif [[ $WSL_DISTRO_NAME == 'Debian' ]]; then
+    TBG_PORT=9544
+  else
+    echo "WARNING: unknown wsl distro '$WSL_DISTRO_NAME'. Defaulting to port 9540"
+    TBG_PORT=9540
+  fi
   function __tbg_next_image() {
-    tbg.exe next-image &>/dev/null &!
+    tbg.exe next-image -P $TBG_PORT &>/dev/null &!
   }
   zle -N __tbg_next_image
   bindkey '^[^I' __tbg_next_image
 
-  tbg.exe run -p Debian &>/dev/null &!
+  tbg.exe run -p $WSL_DISTRO_NAME -P $TBG_PORT &>/dev/null &!
 fi
 
 # }}}
