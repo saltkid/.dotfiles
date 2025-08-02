@@ -34,8 +34,10 @@ mkdir -p ~/Source ~/Work ~/Projects ~/.config
 git clone https://aur.archlinux.org/yay.git $HOME/Source/yay && \
   cd $HOME/Source/yay && makepkg -si && cd $HOME && \
   rm -fr $HOME/Source/yay && \
-
-sudo pacman -S --noconfirm stow && \
+# need stow for dotfile management
+# need mesa, vulkan-dzn, and vulkan-icd-loader for gui apps
+# need adwaita-cursors for a cursor theme
+sudo pacman -S --noconfirm stow mesa vulkan-dzn vulkan-icd-loader && \
 
 # user packages
 sudo pacman -S --noconfirm $(< $DOTFILES_DIR/wsl-arch-packages.txt) && \
@@ -74,6 +76,8 @@ done
 # }}}
 
 # INSTALL PACKAGES NOT IN REPOS {{{
+# Build latest wezterm
+yay -S wezterm-git
 # GT FOR FZFCD
 git clone git@github.com-saltkid:saltkid/gt.git ~/Projects/etc/gt
 if [ $? -ne 0 ]; then
@@ -83,6 +87,7 @@ fi
 # }}}
 
 # FINISH {{{
+echo "$(which zsh)" | sudo tee -a /etc/shells
 chsh -s $(which zsh) $USER
 # initialize dotfiles
 cd $DOTFILES_DIR

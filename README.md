@@ -1,11 +1,12 @@
 # dotfiles
-@saltkid's dotfiles. Includes a build script for WSL, Debian unstable to get
-GUI apps working. Has editable packages lists to add more packages, zsh
-plugins, and nerd fonts on build. 
+@saltkid's dotfiles. Includes a build script for WSL Debian unstable and WSL 
+archlinux to get GUI apps working. Has editable packages lists to add more 
+packages, zsh plugins, and nerd fonts on build. 
 
 # Table of Contents
 - [Setup](#setup)
-    - [Setup from scratch](#setup-from-scratch)
+    - [Setup WSL from scratch](#setup-wsl-from-scratch)
+    - [Setup Debain using build script](#setup-debian-using-build-script)
 - [Build details](#build-details)
 - [Post build details](#post-build-details)
 - [Editable packages lists](#editable-packages-lists)
@@ -18,10 +19,9 @@ If you just want the dotfiles, while in the dotfiles repo, do:
 stow --adopt .
 git restore . # to overwrite existing configs
 ```
-This dotfiles include build scripts (`./scripts/wsl-debian-build.sh` and
-`./scripts/wsl-debian-post-build.sh`) which duplicate my setup from a freshly installed
-Debian on WSL
-## Setup from scratch
+This dotfiles include build scripts which duplicate my setup from a freshly
+installed Debian/Arch on WSL
+## Setup WSL from scratch
 [reference](https://wiki.debian.org/InstallingDebianOn/Microsoft/Windows/SubsystemForLinux)
 1. Activate needed features for WSL
 
@@ -36,7 +36,8 @@ Debian on WSL
     ```powershell
     wsl.exe --update
     ```
-3. Install Debian
+## Setup Debian using build script
+1. Install Debian
 
     In a non-elevated powershell, do
     ```powershell
@@ -44,7 +45,7 @@ Debian on WSL
     wsl.exe --install -d Debian
     ```
     This will launch Debian and prompt to create a user
-5. Build my setup
+2. Build my setup
     ```bash
     sudo apt-get install -y git
     git clone --recurse-submodules -j8 https://github.com/saltkid/dotfiles.git $HOME/dotfiles
@@ -55,7 +56,7 @@ Debian on WSL
     Then restart your shell. When the build fails, the script will try to undo
     the build process, where you can try executing `build.sh` again (after
     reading what went wrong of course).
-6. Post build
+3. Post build
 
     Restart WSL in powershell:
     ```powershell
@@ -73,7 +74,79 @@ Debian on WSL
     ```bash
     wezterm
     ```
+## Setup Arch using build script
+1. Install Arch
 
+    In a non-elevated powershell, do
+    ```powershell
+    wsl.exe --set-default-version 2
+    wsl.exe --install -d archlinux
+    ```
+    This will launch Arch as root. Next steps will setup a small base and a
+    default user
+2. Install a small base, create the default user account, and make the user a
+sudoer
+
+    The script below cannot be in the repo since you'd need to do this before
+    you can even clone my dotfiles. Be sure to read before copy pasting and
+    executing :^)
+    ```bash
+    # Recommended to run `pacman -Syu` on first launch
+    # The rest are what I consider an small base for all accounts
+    pacman -Syu --noconfirm base-devel gnupg openssh man-db man-pages git vim sudo
+
+    # Setting language
+    cp /etc/environment /etc/environment.bak
+    cp /etc/locale.gen /etc/locale.gen.bak
+    echo "EDITOR=vim" >> /etc/environment
+    echo "VISUAL=vim" >> /etc/environment
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+    echo "en_US ISO-8859-1" >> /etc/locale.gen
+    locale-gen
+
+    # Setting tty keyboard map
+    cp /etc/locale.conf /etc/locale.conf.bak
+    cp /etc/vconsole.conf /etc/vconsole.conf.bak
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf
+    echo "KEYMAP=us" > /etc/vconsole.conf
+    echo "FONT=ter-v28n" >> /etc/vconsole.conf
+
+    # Add password for root account and add default user and password
+    echo "Add password for root account"
+    passwd
+    read -p "Create user account. Enter username: " WSL_INSTALL_USERNAME
+    useradd -mG wheel "$WSL_INSTALL_USERNAME"
+    passwd "$WSL_INSTALL_USERNAME"
+    cp /etc/wsl.conf /etc/wsl.conf.bak
+    echo "
+    [user]
+    default=$WSL_INSTALL_USERNAME" >> /etc/wsl.conf
+
+    # Allow the created user to use sudo by allowing all users under "wheel" group
+    # to execute any action.
+    # the regex is simply removing the `#` to uncomment wheel being able to
+    # execute any action
+    cp /etc/sudoers /etc/sudoers.bak
+    sed -i '/^#\s%wheel ALL=(ALL:ALL) ALL$/s/^# //' /etc/sudoers && \
+    # sanity check syntax errors
+    visudo -c
+    ```
+3. Post build
+
+    Restart WSL in powershell:
+    ```powershell
+    wsl.exe --terminate archlinux; wsl -d archlinux
+    ```
+    Clone the repo and execute the post build script:
+    ```bash
+    cd $HOME/dotfiles
+    chmod +x ./scripts/wsl-arch-post-build.sh
+    ./scripts/post-build.sh
+    ```
+    Restart your shell again and the gui apps should work now. Try out wezterm
+    ```bash
+    wezterm
+    ```
 --- 
 
 # Build details
