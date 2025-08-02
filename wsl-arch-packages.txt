@@ -1,0 +1,14 @@
+zsh
+stow
+neovim
+go
+rust
+nodejs
+npm
+fzf
+lazygit
+ripgrep
+fd
+git-delta
+python-uv
+tree
