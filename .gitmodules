@@ -1,3 +1,6 @@
 [submodule ".config/wezterm"]
 	path = .config/wezterm
 	url = https://github.com/saltkid/wezterm-config
+[submodule ".config/nvim"]
+	path = .config/nvim
+	url = git@github.com-saltkid:saltkid/nvim-config.git
