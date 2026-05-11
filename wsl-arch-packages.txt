@@ -12,3 +12,5 @@ fd
 git-delta
 python-uv
 tree
+zip
+unzip

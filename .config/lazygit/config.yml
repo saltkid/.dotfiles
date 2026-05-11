@@ -12,10 +12,10 @@ gui:
     searchingActiveBorderColor:
       - reverse
   sidePanelWidth: 0.2 # gives more space for side-by-side view
+  mainPanelSplitMode: vertical
 os:
   editPreset: 'nvim'
 git:
-  paging:
-    colorArg: always
-    pager: delta --paging=never -s
-
+  pagers:
+    - colorArg: always
+      pager: delta --paging=never -s
