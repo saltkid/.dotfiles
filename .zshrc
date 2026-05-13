@@ -11,6 +11,7 @@ SAVEHIST=1000
 path+=("/opt/nvim/bin")
 path+=("/usr/local/go/bin")
 path+=("$HOME/Projects/etc/gt")
+path+=("$HOME/.dotnet/tools")
 export PATH
 # }}}
 
@@ -71,6 +72,8 @@ alias la="ls -a"
 alias lla="ls -la"
 alias v="nvim"
 alias v.="nvim ."
+alias vv="nvim $HOME/.config/nvim"
+alias vz="nvim $HOME/.zshrc"
 alias ..="cd ../."
 alias ...="cd ../../."
 alias ....="cd ../../../."
