@@ -120,6 +120,7 @@ function git-setup() {
     # get username based on remote.origin.url
     # expected format is like: git@github.com-saltkid:saltkid/dotfiles.git
     ssh_key_id=$(git ls-remote --get-url origin | cut -d@ -f2 | cut -d: -f1)
+    domain=$(echo "$ssh_key_id" | cut -d- -f1)
     username=$(echo "$ssh_key_id" | cut -d- -f2-999)
     if [[ -z "$username" ]]; then
       echo "No username found in remote.origin.url (${git ls-remote --get-url origin})"
@@ -152,7 +153,7 @@ function git-setup() {
     echo "Signing key already set: $signingkey"
   else
     # based on username and email, get gpg public key for signing.
-    signingkey=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep -B 2 "$username.*<$email>" | grep -oP 'rsa4096\/\K[A-F0-9]{16}')
+    signingkey=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep -B 2 "$username.*$domain/$username.*<$email>" | grep -oP 'rsa4096\/\K[A-F0-9]{16}')
     if [[ -z "$signingkey" ]]; then
       echo "No signing key found for username: '$username' with email: '$email'."
       keys=()
